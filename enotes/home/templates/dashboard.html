@@ -1,0 +1,157 @@
+{% extends 'usernavbar.html' %}
+{% block main %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font: 500 100%/1.4 system-ui;
+      background-color: #ccc;
+    }
+
+    .a {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 0rem;
+      padding: 1rem;
+    }
+
+    .card {
+      height:auto;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1rem 2rem;
+      background: #f8f3e8;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+
+    .card > img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 600/300;
+    }
+
+    .card > h2 {
+      margin-top: 1rem;
+      font-family: "Kalam", cursive;
+      font-weight: normal;
+      font-size: 2rem;
+      color: #4a4a7d;
+      text-align: center;
+    }
+
+    .card > p {
+      font-family: "Kalam", cursive;
+      font-size: 1rem;
+      color: #5e5e89;
+      text-align: center;
+      
+    }
+
+    .read-more-content {
+            max-height:auto;  /* Set the initial height (adjust as needed) */
+            overflow: hidden;
+            white-space: nowrap;
+            margin-left:30px !important;
+            margin-right: 30px !important;
+        }
+
+        .read-more-toggle {
+            cursor: pointer;
+            color: blue;
+        }
+
+    .span{
+      margin-left: 30px !important;
+    }
+  </style>
+<body>
+  <div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+        <li class="breadcrumb-item active">Dashboard</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  <section class="section dashboard">
+    <div class="row">
+
+      <!-- Left side columns -->
+      <div class="col-lg-8">
+        <div class="row">
+
+          <!-- Sales Card -->
+          <div class="col-xxl-6 col-md-6">
+            <div class="card info-card sales-card">
+              <div class="card-body">
+                <h5 class="card-title">Total Notes</h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-files"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6>{{ totalnotes }}</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!-- End Sales Card -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <h2>Global Notes zone 📚</h2>
+
+  {% for note in notes %}
+  <div class="card a" style="transform: rotate(' + randomRotate() + ')">
+       
+      <h2>{{ note.Title }}</h2>
+      
+      <p>by: {{ note.signup.user.username }}</p>
+
+      <div class="read-more-content">
+      <p>{{ note.Content }}</p>
+    </div>
+    <span class="read-more-toggle span" onclick="toggleReadMore(this)">Read More</span>
+    </div>
+    <hr>
+  {% endfor %}
+
+  <script>
+  
+  function randomRotate() {
+  return Math.random() * (5 - -5) + -5 + 'deg';
+}
+
+function toggleReadMore(toggleButton) {
+  const card = toggleButton.closest('.card');
+  const content = card.querySelector('.read-more-content');
+  const readMoreToggle = card.querySelector('.read-more-toggle');
+
+  // Toggle between expanded and collapsed states
+  if (content.style.maxHeight && content.style.maxHeight !== '1rem') {
+    // Collapse the content
+    content.style.maxHeight = null;
+    content.style.whiteSpace = 'nowrap';
+    readMoreToggle.innerText = 'Read More';
+  } else {
+    // Expand the content
+    content.style.maxHeight = content.scrollHeight + 'rem';
+    content.style.whiteSpace = 'normal';
+    readMoreToggle.innerText = 'Read Less';
+  }
+}
+  </script>
+</body>
+
+{% endblock %}
