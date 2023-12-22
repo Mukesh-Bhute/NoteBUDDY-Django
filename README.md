@@ -42,5 +42,5 @@ pip (Python package installer) installed.
 
 Visit http://127.0.0.1:8000/ in your browser to access the NoteBUDDY application.
 
-Access Admin Panel
+Access Admin Panel<br>
 Visit http://127.0.0.1:8000/admin/ and log in with the superuser credentials created earlier.
