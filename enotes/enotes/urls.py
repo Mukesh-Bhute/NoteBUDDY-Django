@@ -16,10 +16,11 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from authh.views import *
 from home.views import *
 from intigs.views import *
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -45,5 +46,9 @@ urlpatterns = [
     path('unpublish_note/<int:pid>/', unpublish_note, name='unpublish_note'),
     
      path('payment_success/', payment_success, name='payment_success'),
+     
     
+]
+urlpatterns += [
+    re_path(r'^.*/$', TemplateView.as_view(template_name='404.html'), name='404'),
 ]
