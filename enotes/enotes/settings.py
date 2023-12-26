@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*m)$une2)%57-n#h**obv0onr)bn9v3dn%z1@q$dlyh3oz!n5*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # for email integration
 EMAIL_HOST="smtp.gmail.com"
@@ -41,6 +41,8 @@ EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 RAZOR_KEY_ID = "rzp_test_NgNcrxcEBDVyTc"
 RAZOR_KEY_SECRET = "RSmC1cllkwfgChtcxPo7WO5o"
 
+# Email id from user 
+USER_EMAIL = ''
 
 # Application definition
 

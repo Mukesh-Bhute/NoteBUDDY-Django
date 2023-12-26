@@ -38,8 +38,12 @@ urlpatterns = [
     path('contrib', contrib, name='contrib'),
     # path('razorpay-payment/', razorpay_payment, name='razorpay_payment'),
     # path('handle_razorpay_response/', handle_razorpay_response, name='handle_razorpay_response'),
-    path('paymenthandler/',paymenthandler, name='paymenthandler'),
+    # path('paymenthandler/<razorpayEmail>', paymenthandler, name='paymenthandler'),
+    path('paymenthandler/', paymenthandler, name='paymenthandler'),
+    path('submit_email/', submit_email, name='submit_email'),
     path('publish_note/<int:pid>/', publish_note, name='publish_note'),
     path('unpublish_note/<int:pid>/', unpublish_note, name='unpublish_note'),
+    
+     path('payment_success/', payment_success, name='payment_success'),
     
 ]

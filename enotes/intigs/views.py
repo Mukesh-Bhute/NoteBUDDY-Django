@@ -1,12 +1,9 @@
+from audioop import reverse
 from django.shortcuts import redirect, render
 import razorpay
 
 from django.core.mail import send_mail
-
-
-# from django.http import JsonResponse
-# import time
-# import random
+from django.http import HttpResponse
 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -41,9 +38,10 @@ def contrib(request):
  
     return render(request, 'contrib.html', context=context)
  
-""" we need to csrf_exempt this url as
- POST request will be made by Razorpay
-and it won't have the csrf token. """
+ 
+# we need to csrf_exempt this url as
+# POST request will be made by Razorpay
+# and it won't have the csrf token.
 @csrf_exempt
 def paymenthandler(request):
  
@@ -60,6 +58,8 @@ def paymenthandler(request):
                 'razorpay_payment_id': payment_id,
                 'razorpay_signature': signature
             }
+
+            
  
             # verify the payment signature.
             result = razorpay_client.utility.verify_payment_signature(
@@ -70,13 +70,22 @@ def paymenthandler(request):
  
                     # capture the payemt
                     razorpay_client.payment.capture(payment_id, amount)
-                    
-                    # render success page on successful caputre of payment
-                    render_result = render(request, 'paymentsuccess.html')
+ 
+                    # # render success page on successful caputre of payment
+                    # render_result = render(request, 'paymentsuccess.html')
                 
-                    # call the send mail view
+                    # Render the loader page
+                    loader_page = render(request, 'loader.html')
+
+                    # Call the submit_email view
                     sendusermail(request)
-                    return render_result
+                    print("load")
+                    # return loader_page
+                    # Redirect to the actual success page after a delay
+                    redirect_url = 'payment-success/' 
+                    response = HttpResponse(loader_page)
+                    response['refresh'] = f'5;url={redirect_url}'
+                    return response
                 except:
  
                     # if there is an error while capturing payment.
@@ -95,91 +104,54 @@ def paymenthandler(request):
 
 
 
-from django.http import HttpResponse
+
+from django.http import JsonResponse
+
+def submit_email(request):
+    if request.method == 'POST':
+        user_email = request.POST.get('email', '')
+
+        settings.USER_EMAIL = user_email
+        print(settings.USER_EMAIL)
+
+        # Do something with the user_email, such as save it to the database or process it further
+
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+
+
+
+
+
 
 def sendusermail(request):
-    msg = """Dear User,
+    email= settings.USER_EMAIL
+    print("e: "+ email)
+    settings.USER_EMAIL = ""
+    msg = """Dear User, 
 
 Thank you for your 200 Rupee contribution to the NoteBUDDY application. Your support is invaluable and will directly contribute to the improvement and maintenance of our platform.
 
 We appreciate your generosity and are grateful to have you as part of our community.
 
 Best regards,
-NoteBUDDY Team"""
+NoteBUDDY Team """
     send_mail(
         "Payment Successfull",
         msg,
         "mukeshbhute64@gmail.com",
-        ["mukeshbhute63@gmail.com"],  # You can add user's email here
+        [email],  # You can add user's email here
         fail_silently=False,
     )
     return HttpResponse('hello')
 
 
+def payment_success(request):
+    return render(request, 'paymentsuccess.html')
 
 
 
 
-
-
-
-
-# one page pay view
-# def contrib(request):
-#     return render(request, 'contrib.html')
-# def generate_order_id():
-#     # Implement your logic to generate a unique order ID here
-#     # For simplicity, you can use a timestamp combined with a random number
-#     import time
-#     import random
-#     return str(int(time.time())) + str(random.randint(100, 999))
-
-# def razorpay_payment(request):
-#     if request.method == 'POST':
-#         amount = int(request.POST.get('amount', 200))  # Default amount is 200, adjust as needed
-#         order_id = generate_order_id()
-
-#         client = razorpay.Client(auth=("rzp_test_NgNcrxcEBDVyTc", "RSmC1cllkwfgChtcxPo7WO5o"))
-
-#         try:
-#             payment_data = {
-#                 'amount': amount * 100,  # Amount should be in paise
-#                 'currency': 'INR',
-#                 'receipt': order_id,
-#                 'payment_capture': 1  # Auto-capture payments
-#             }
-
-#             order = client.order.create(data=payment_data)
-#             print(order)
-
-#             return render(request, 'razorpay_payment.html', {'order': order, 'amount': amount})
-#         except Exception as e:
-#             print(e)  # Print the error for debugging
-#             return render(request, 'payment_error.html')
-
-#     return redirect('contrib')  # Redirect back to the contribution page if not a POST request
-
-
-# def handle_razorpay_response(request):
-
-#     if request.method == 'POST':
-#         razorpay_payment_id = request.POST.get('razorpay_payment_id')
-#         razorpay_order_id = request.POST.get('razorpay_order_id')
-#         razorpay_signature = request.POST.get('razorpay_signature')
-
-#         client = razorpay.Client(auth=("rzp_test_NgNcrxcEBDVyTc", "RSmC1cllkwfgChtcxPo7WO5o"))
-
-#         try:
-#             client.utility.verify_payment_signature({
-#                 'razorpay_order_id': razorpay_order_id,
-#                 'razorpay_payment_id': razorpay_payment_id,
-#                 'razorpay_signature': razorpay_signature,
-#             })
-
-#             # Payment is successful, perform necessary actions (e.g., update order status)
-#             return render(request, 'payment_success.html')
-#         except Exception as e:
-#             # Payment verification failed, handle the error (e.g., log the error)
-#             return render(request, 'payment_error.html')
-
-#     return redirect('contrib')  # Redirect back to the contribution page if not a POST request
