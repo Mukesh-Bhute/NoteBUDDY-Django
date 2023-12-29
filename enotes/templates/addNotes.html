@@ -31,7 +31,7 @@
                     <div class="tab-content pt-2">
 
                         <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                            <form method="post">
+                            <form method="post" action="{% url 'addNotes' %}">
                                 {% csrf_token %}
 
                                 <div class="row mb-3">
@@ -40,11 +40,20 @@
                                         <input name="Title" type="text" class="form-control" placeholder="Enter Title" required>
                                     </div>
                                 </div>
-
+                                
+                                <div class="row mb-3">
+                                    <label class="col-md-4 col-lg-3 col-form-label">Upload File</label>
+                                    <div class="col-md-8 col-lg-9">
+                                        <input type="file" name="file" accept=".txt">
+                                        <button type="button" class="btn btn-primary" onclick="extractContent()">Extract</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Modify the Notes Description section -->
                                 <div class="row mb-3">
                                     <label class="col-md-4 col-lg-3 col-form-label">Notes Description</label>
                                     <div class="col-md-8 col-lg-9">
-                                        <textarea name="Content" class="form-control" style="height: 100px" placeholder="Notes Description" required></textarea>
+                                        <textarea name="Content" class="form-control" style="height: 100px" placeholder="Notes Description" required>{{ content_from_file|safe  }}</textarea>
                                     </div>
                                 </div>
 
@@ -61,6 +70,35 @@
         </div>
     </div>
 </section>
+
+<script>
+    function extractContent() {
+        // Simulate form submission to trigger content extraction
+        var formData = new FormData(document.forms[0]);
+        formData.append('extract', true);
+
+        fetch('{% url "addNotes" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update textarea with extracted content and keep formatting
+                var contentTextarea = document.querySelector('[name="Content"]');
+                contentTextarea.innerHTML = data.content;
+            } else {
+                alert('Failed to extract content. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        });
+    }
+</script>
+
+
 
 {% if error == "no" %}
 <script>

@@ -1,7 +1,11 @@
+from django.http import JsonResponse
 from django.shortcuts import render,redirect,get_object_or_404
 from .models import *
 from authh.models import *
 from django.contrib.auth import authenticate
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
+from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
 def index(request):
@@ -9,6 +13,7 @@ def index(request):
 
 def about(request):
     return render(request, 'about.html')
+
 
 def dashboard(request):
     if not request.user.is_authenticated:
@@ -19,32 +24,89 @@ def dashboard(request):
         signup = Signup.objects.get(user=user)
         totalnotes = Notes.objects.filter(signup=signup).count()
     except Signup.DoesNotExist:
-        # Handle the case where Signup does not exist for the user
         signup = None
         totalnotes = 0
 
-    notes = Notes.objects.filter(publish=True)
+    # Assuming you want 5 notes per page
+    notes_list = Notes.objects.filter(publish=True)
+
+    # Search functionality
+    query = request.GET.get('q')
+    if query:
+        notes_list = notes_list.filter(Q(Title__icontains=query))
+
+    paginator = Paginator(notes_list, 5)  # Show 5 notes per page
+
+    page = request.GET.get('page')
+    try:
+        notes = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        notes = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        notes = paginator.page(paginator.num_pages)
 
     return render(request, 'dashboard.html', locals())
+
+# def addNotes(request):
+#     if not request.user.is_authenticated:
+#         return redirect('user_login')
+#     user = User.objects.get(id=request.user.id)
+#     signup = Signup.objects.get(user=user)
+
+#     error = ""
+#     if request.method == "POST":
+#         title = request.POST['Title']
+#         content = request.POST['content_from_file']
+        
+#         try:
+#             Notes.objects.create(signup=signup, Title=title, Content=content)
+#             print()
+#             error = "no"
+#         except:
+#             error = "yes"
+#     return render(request, 'addNotes.html', locals())
+
+from django.utils.html import escape
+
+# ... (existing imports) ...
 
 def addNotes(request):
     if not request.user.is_authenticated:
         return redirect('user_login')
+    
     user = User.objects.get(id=request.user.id)
     signup = Signup.objects.get(user=user)
 
     error = ""
+    content_from_file = ""
+
     if request.method == "POST":
         title = request.POST['Title']
-        content = request.POST['Content']
-        
+        content = request.POST.get('Content', '')
+
+        if 'extract' in request.POST:
+            # Extract content from the uploaded file
+            uploaded_file = request.FILES.get('file')
+            if uploaded_file:
+                fs = FileSystemStorage()
+                filename = fs.save(uploaded_file.name, uploaded_file)
+
+                with fs.open(filename) as file:
+                    content_from_file = file.read().decode('utf-8')
+
+                return JsonResponse({'success': True, 'content': content_from_file})
+
         try:
-            Notes.objects.create(signup=signup, Title=title, Content=content)
-            print()
+            # Save the content as HTML (escaped for security)
+            Notes.objects.create(signup=signup, Title=title, Content=escape(content))
             error = "no"
         except:
             error = "yes"
-    return render(request, 'addNotes.html', locals())
+
+    return render(request, 'addNotes.html', {'content_from_file': content_from_file, 'error': error})
+
 
 def viewNotes(request):
     if not request.user.is_authenticated:

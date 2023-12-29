@@ -6,7 +6,8 @@
   <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
   <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
   <title>NoteBUDDY</title>
-	<style>@import url('https://fonts.googleapis.com/css2?family=Fira+Sans&family=Lato:wght@300&display=swap');
+	<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans&family=Lato:wght@300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Source+Code+Pro:wght@300&display=swap');
 
 
@@ -47,7 +48,7 @@
 .main{
     width: 87vw;
 }
-
+/* 
 .main::before{
   content: "";
   position: absolute;
@@ -58,7 +59,7 @@
   transform: scaleX(-1);
   background-size: cover;
   filter: blur(2px);
-}
+} */
 
 .infoContainer{
     height: 60vh;
@@ -213,10 +214,22 @@ margin-left: 110px;
     font-weight:bold;
   }
 
+  /* background video */
+  #myVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
 
 	</style>
 </head>
 <body>
+  <video autoplay muted loop id="myVideo">
+    <source src="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/items/1098340/37792c63c8d13dc494bbaae5f9a959a0bb30dca5.mp4">
+  </video>
+
    <div class="container">
     <div class="sidebar sidebarGo">
 

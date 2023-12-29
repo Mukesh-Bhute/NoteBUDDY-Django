@@ -89,6 +89,3 @@ def Logout(request):
     logout(request)
     return redirect('index')
 
-
-# def custom_404(request, exception):
-#     return render(request, '404.html', status=404)
